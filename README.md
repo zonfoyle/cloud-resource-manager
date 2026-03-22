@@ -2,7 +2,7 @@
 
 Cloud Resource Manager is a Python-based AWS infrastructure automation project built using boto3 and YAML configuration.
 
-This project provisions a complete cloud environment programmatically, including networking, compute, and security components, and deploys a live web server accessible via a public IP.
+This project provisions a complete cloud environment programmatically, including networking, compute, and security components — and deploys a live web server accessible via a public IP.
 
 ---
 
@@ -27,6 +27,8 @@ The infrastructure is idempotent, meaning:
 ---
 
 ## 🧠 Architecture
+
+![Architecture Diagram](architecture.png)
 
 config.yaml  
 ↓  
@@ -94,7 +96,6 @@ Custom page deployed:
 
 Hello Zonique 🚀  
 This server was deployed using Python + AWS automation.  
-
 
 ---
 
