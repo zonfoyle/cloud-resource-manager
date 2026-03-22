@@ -1,71 +1,125 @@
-# Cloud Resource Manager
+# Cloud Resource Manager 🚀
 
-Cloud Resource Manager is a Python-based command-line project for automating the provisioning and management of AWS infrastructure.
+Cloud Resource Manager is a Python-based AWS infrastructure automation project built using boto3 and YAML configuration.
 
-This project was built to practice managing cloud resources programmatically instead of relying only on the AWS Management Console. It uses boto3 to create and manage core AWS services such as VPC components, EC2 instances, and IAM roles, with room to expand into additional services like S3 and monitoring workflows.
+This project provisions a complete cloud environment programmatically, including networking, compute, and security components — and deploys a live web server accessible via a public IP.
 
-## Project Purpose
+---
 
-The goal of this project is to strengthen hands-on cloud engineering skills by automating common infrastructure tasks in AWS. Rather than creating every resource manually in the console, this project uses Python scripts and AWS SDK calls to provision infrastructure in a more repeatable and structured way. It is designed as a learning project, while also reflecting the kind of automation mindset used in cloud and DevOps environments.
+## 🔥 What This Project Does
 
-## What the Project Does
+This system automates the creation and management of:
 
-This project currently includes scripts to:
-- create a VPC
-- create a subnet
-- create an internet gateway
-- create a route table
-- launch an EC2 instance
-- list EC2 instances
-- filter EC2 instances
-- stop EC2 instances by tag
-- create an IAM role
+- VPC (Virtual Private Cloud)  
+- Subnet  
+- Internet Gateway  
+- Route Table + Internet Routing  
+- Security Group (SSH + HTTP access)  
+- EC2 Instance  
+- Public IP retrieval  
+- Apache web server deployment (via SSH)  
 
-The long-term goal is to combine these scripts into a more complete infrastructure automation workflow driven by configuration.
+The infrastructure is idempotent, meaning:
 
-## Architecture
+- Running the script multiple times will reuse existing resources  
+- Prevents duplication and AWS limits issues  
 
-config.yaml
-    ↓
-Python CLI / scripts
-    ↓
-boto3
-    ↓
-AWS Infrastructure
+---
 
-## Technologies Used
+## 🧠 Architecture
 
-- Python
-- boto3
-- PyYAML
-- AWS EC2
-- AWS IAM
-- AWS VPC
+config.yaml  
+↓  
+Python (main.py + utils.py)  
+↓  
+boto3 (AWS SDK)  
+↓  
+AWS Infrastructure (VPC → Subnet → IGW → EC2)  
 
-## Project Structure
+---
 
-cloud-resource-manager/
-├── README.md
-├── requirements.txt
-├── config.yaml
-├── 01_create_vpc.py
-├── 02_create_subnet.py
-├── 03_create_internet_gateway.py
-├── 04_create_route_table.py
-├── 05_launch_ec2.py
-├── 06_list_ec2_instances.py
-├── 07_filter_ec2_instances.py
-├── 08_stop_ec2_by_tag.py
-└── 09_create_iam_role.py
+## ⚙️ Tech Stack
 
-## How to Run
+- Python  
+- boto3  
+- PyYAML  
+- AWS EC2 / VPC / IAM  
 
-1. Configure your AWS credentials
-2. Install dependencies
-3. Run the desired Python script
+---
 
-Example:
+## 📁 Project Structure
 
-```bash
-pip install -r requirements.txt
-python 01_create_vpc.py
+cloud-resource-manager/  
+├── config.yaml  
+├── main.py  
+├── utils.py  
+├── requirements.txt  
+├── README.md  
+└── .gitignore  
+
+---
+
+## 🚀 How to Run
+
+Clone repo  
+git clone <your-repo-url>  
+cd cloud-resource-manager  
+
+Create virtual environment  
+python3 -m venv .venv  
+source .venv/bin/activate  
+
+Install dependencies  
+pip install -r requirements.txt  
+
+Configure AWS  
+aws configure  
+
+Run automation  
+python main.py  
+
+---
+
+## 🌐 Live Deployment
+
+After provisioning, the EC2 instance hosts a live Apache web server.
+
+Example output:  
+EC2 public IP: 98.85.100.34  
+
+Accessible via browser:  
+http://<public-ip>  
+
+Custom page deployed:
+
+Hello Zonique 🚀  
+This server was deployed using Python + AWS automation.  
+
+---
+
+## 🧠 Key Learning Outcomes
+
+- AWS networking (VPC, subnets, routing)  
+- Infrastructure automation with boto3  
+- Idempotent resource design  
+- EC2 provisioning and lifecycle management  
+- Security group configuration and debugging  
+- SSH access and remote server management  
+- Web server deployment on cloud infrastructure  
+
+---
+
+## 🔮 Future Improvements
+
+- EC2 User Data automation (no manual SSH setup)  
+- Elastic IP automation  
+- IAM role attachment to EC2  
+- Flask or full-stack app deployment  
+- Terraform version of this project  
+
+---
+
+## 👨‍💻 Author
+
+Zonique Foyle  
+Future Solutions Architect 💪  
