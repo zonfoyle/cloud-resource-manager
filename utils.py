@@ -17,9 +17,7 @@ def get_iam_client():
 
 def create_vpc(ec2_client, cidr_block: str, name: str):
     existing_vpcs = ec2_client.describe_vpcs(
-        Filters=[
-            {"Name": "tag:Name", "Values": [name]}
-        ]
+        Filters=[{"Name": "tag:Name", "Values": [name]}]
     )["Vpcs"]
 
     if existing_vpcs:
@@ -28,7 +26,6 @@ def create_vpc(ec2_client, cidr_block: str, name: str):
         return vpc_id
 
     response = ec2_client.create_vpc(CidrBlock=cidr_block)
-
     vpc_id = response["Vpc"]["VpcId"]
 
     ec2_client.create_tags(
@@ -69,28 +66,15 @@ def create_subnet(ec2_client, vpc_id: str, cidr_block: str, name: str):
 
 def create_internet_gateway(ec2_client, vpc_id: str, name: str):
     existing_igws = ec2_client.describe_internet_gateways(
-        Filters=[
-            {"Name": "tag:Name", "Values": [name]}
-        ]
+        Filters=[{"Name": "tag:Name", "Values": [name]}]
     )["InternetGateways"]
 
     if existing_igws:
         igw_id = existing_igws[0]["InternetGatewayId"]
-
-        attached_vpcs = existing_igws[0].get("Attachments", [])
-        already_attached = any(att["VpcId"] == vpc_id for att in attached_vpcs)
-
-        if not already_attached:
-            ec2_client.attach_internet_gateway(
-                InternetGatewayId=igw_id,
-                VpcId=vpc_id
-            )
-
         print(f"Using existing Internet Gateway: {igw_id}")
         return igw_id
 
     response = ec2_client.create_internet_gateway()
-
     igw_id = response["InternetGateway"]["InternetGatewayId"]
 
     ec2_client.create_tags(
@@ -120,7 +104,6 @@ def create_route_table(ec2_client, vpc_id: str, name: str):
         return route_table_id
 
     response = ec2_client.create_route_table(VpcId=vpc_id)
-
     route_table_id = response["RouteTable"]["RouteTableId"]
 
     ec2_client.create_tags(
@@ -170,56 +153,6 @@ def associate_route_table_with_subnet(ec2_client, route_table_id: str, subnet_id
     print("Associated Route Table with Subnet.")
 
 
-def launch_ec2_instance(
-    ec2_client,
-    subnet_id: str,
-    ami_id: str,
-    instance_type: str,
-    key_name: str,
-    name: str,
-    security_group_id: str
-):
-    reservations = ec2_client.describe_instances(
-        Filters=[
-            {"Name": "tag:Name", "Values": [name]},
-            {"Name": "instance-state-name", "Values": ["pending", "running", "stopped"]}
-        ]
-    )["Reservations"]
-
-    if reservations:
-        instance = reservations[0]["Instances"][0]
-        instance_id = instance["InstanceId"]
-        state = instance["State"]["Name"]
-
-        if state == "stopped":
-            ec2_client.start_instances(InstanceIds=[instance_id])
-            print(f"Started existing EC2 instance: {instance_id}")
-        else:
-            print(f"Using existing EC2 instance: {instance_id}")
-
-        return instance_id
-
-    response = ec2_client.run_instances(
-        ImageId=ami_id,
-        InstanceType=instance_type,
-        KeyName=key_name,
-        MinCount=1,
-        MaxCount=1,
-        SubnetId=subnet_id,
-        SecurityGroupIds=[security_group_id],
-        TagSpecifications=[
-            {
-                "ResourceType": "instance",
-                "Tags": [
-                    {"Key": "Name", "Value": name}
-                ]
-            }
-        ]
-    )
-
-    instance_id = response["Instances"][0]["InstanceId"]
-    return instance_id
-
 def create_security_group(ec2_client, vpc_id: str, name: str):
     existing_sgs = ec2_client.describe_security_groups(
         Filters=[
@@ -241,7 +174,6 @@ def create_security_group(ec2_client, vpc_id: str, name: str):
 
     sg_id = response["GroupId"]
 
-    # Allow SSH
     ec2_client.authorize_security_group_ingress(
         GroupId=sg_id,
         IpPermissions=[
@@ -254,7 +186,6 @@ def create_security_group(ec2_client, vpc_id: str, name: str):
         ]
     )
 
-    # Allow HTTP
     ec2_client.authorize_security_group_ingress(
         GroupId=sg_id,
         IpPermissions=[
@@ -269,15 +200,98 @@ def create_security_group(ec2_client, vpc_id: str, name: str):
 
     return sg_id
 
+
+def launch_ec2_instance(
+    ec2_client,
+    subnet_id: str,
+    ami_id: str,
+    instance_type: str,
+    key_name: str,
+    name: str,
+    security_group_id: str
+):
+    reservations = ec2_client.describe_instances(
+        Filters=[
+            {"Name": "tag:Name", "Values": [name]},
+            {"Name": "instance-state-name", "Values": ["pending", "running", "stopped"]}
+        ]
+    )["Reservations"]
+
+    if reservations:
+        instance = reservations[0]["Instances"][0]
+        instance_id = instance["InstanceId"]
+        print(f"Using existing EC2 instance: {instance_id}")
+        return instance_id
+
+    user_data_script = """#!/bin/bash
+yum update -y
+yum install -y httpd
+systemctl start httpd
+systemctl enable httpd
+
+echo "<h1>Hello Zonique 🚀</h1>" > /var/www/html/index.html
+echo "<p>This server was deployed using Python + AWS automation.</p>" >> /var/www/html/index.html
+echo "<p>Auto-deployed with User Data 💪</p>" >> /var/www/html/index.html
+"""
+
+    response = ec2_client.run_instances(
+        ImageId=ami_id,
+        InstanceType=instance_type,
+        KeyName=key_name,
+        MinCount=1,
+        MaxCount=1,
+        NetworkInterfaces=[
+            {
+                "DeviceIndex": 0,
+                "SubnetId": subnet_id,
+                "Groups": [security_group_id],
+                "AssociatePublicIpAddress": True
+            }
+        ],
+        UserData=user_data_script,
+        TagSpecifications=[
+            {
+                "ResourceType": "instance",
+                "Tags": [
+                    {"Key": "Name", "Value": name}
+                ]
+            }
+        ]
+    )
+
+    instance_id = response["Instances"][0]["InstanceId"]
+    return instance_id
+
+
 def get_instance_public_ip(ec2_client, instance_id: str):
-    response = ec2_client.describe_instances(InstanceIds=[instance_id])
+    import time
+    from botocore.exceptions import ClientError
 
-    reservations = response["Reservations"]
-    if not reservations:
-        return None
+    for _ in range(10):
+        try:
+            response = ec2_client.describe_instances(InstanceIds=[instance_id])
 
-    instances = reservations[0]["Instances"]
-    if not instances:
-        return None
+            reservations = response["Reservations"]
+            if not reservations:
+                time.sleep(5)
+                continue
 
-    return instances[0].get("PublicIpAddress")
+            instances = reservations[0]["Instances"]
+            if not instances:
+                time.sleep(5)
+                continue
+
+            public_ip = instances[0].get("PublicIpAddress")
+            if public_ip:
+                return public_ip
+
+        except ClientError as e:
+            error_code = e.response["Error"]["Code"]
+            if error_code == "InvalidInstanceID.NotFound":
+                time.sleep(5)
+                continue
+            raise
+
+        time.sleep(5)
+
+    return None
