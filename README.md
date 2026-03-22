@@ -95,6 +95,17 @@ Custom page deployed:
 Hello Zonique 🚀  
 This server was deployed using Python + AWS automation.  
 
+
+---
+
+## 🎥 Demo
+
+This project provisions AWS infrastructure and deploys a live web server automatically.
+
+Due to AWS account requirements, running this project requires valid AWS credentials and may incur usage costs.
+
+Instead of running it locally, the functionality is demonstrated through the architecture, automation logic, and deployed output.
+
 ---
 
 ## 🧠 Key Learning Outcomes
