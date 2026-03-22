@@ -99,6 +99,14 @@ This server was deployed using Python + AWS automation.
 
 ---
 
+## 📸 Live Demo
+
+This web server is automatically deployed during infrastructure provisioning.
+
+![Web Server Screenshot](screenshot.png)
+
+---
+
 ## 🎥 Demo
 
 This project provisions AWS infrastructure and deploys a live web server automatically.
