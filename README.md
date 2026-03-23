@@ -5,6 +5,13 @@ Cloud Resource Manager is a Python-based AWS infrastructure automation project b
 This project provisions a complete cloud environment programmatically, including networking, compute, and security components — and deploys a live web server accessible via a public IP.
 
 ---
+## 🎯 Problem Statement
+
+Manually provisioning AWS infrastructure through the console is time-consuming, repetitive, and error-prone.
+
+This project solves that problem by automating the creation of core networking, security, and compute resources using Python and boto3, making infrastructure deployment more repeatable and easier to manage.
+
+---
 
 ## 🔥 What This Project Does
 
@@ -37,6 +44,15 @@ Python (main.py + utils.py)
 boto3 (AWS SDK)  
 ↓  
 AWS Infrastructure (VPC → Subnet → IGW → EC2)  
+
+---
+## 🧠 Design Decisions
+
+- Used **boto3** instead of Terraform to practice programmatic AWS automation and better understand how resources are created through the AWS SDK.
+- Chose **EC2** to gain hands-on experience with compute provisioning, networking, SSH access, and web server deployment.
+- Used a **public subnet** with an Internet Gateway so the deployed web server could be accessed from a browser during testing.
+- Used **Security Groups** to allow only the required traffic for SSH (22) and HTTP (80), reinforcing security best practices.
+- Added **idempotent logic** so rerunning the script reuses existing infrastructure instead of duplicating resources.
 
 ---
 
@@ -114,6 +130,15 @@ This project provisions AWS infrastructure and deploys a live web server automat
 Due to AWS account requirements, running this project requires valid AWS credentials and may incur usage costs.
 
 Instead of running it locally, the functionality is demonstrated through the architecture, automation logic, and deployed output.
+
+---
+
+## ⚖️ Trade-offs
+
+- **boto3 vs Terraform:** boto3 provides fine-grained programmatic control, but requires more custom logic than declarative Infrastructure as Code tools like Terraform.
+- **EC2 vs Serverless:** EC2 offers deeper infrastructure visibility and control, but requires more setup and maintenance than serverless options such as AWS Lambda.
+- **Manual SSH vs User Data:** manual setup was useful for learning, but automated EC2 User Data is more scalable and production-friendly.
+- **Public access for testing:** exposing the instance to the internet made validation easier, but a production-grade design would use tighter access controls and more secure deployment patterns.
 
 ---
 
