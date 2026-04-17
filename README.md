@@ -32,6 +32,8 @@ AWS Infrastructure
 (VPC → Subnet → Internet Gateway → EC2)
 ```
 
+![Cloud Resource Manager Architecture](architecture.png)
+
 ## 📸 Live Demo
 
 This web server is automatically deployed during infrastructure provisioning.
